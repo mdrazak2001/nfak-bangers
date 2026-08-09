@@ -1,0 +1,9 @@
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: var(--font-ui);
+  background: var(--indigo-dusk);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+.app { min-height: 100%; }

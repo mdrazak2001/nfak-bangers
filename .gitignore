@@ -25,3 +25,6 @@ dist-ssr/
 
 .worktrees/
 .superpowers/
+
+public/worlds-src/
+

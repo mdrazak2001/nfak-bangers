@@ -35,6 +35,6 @@ export const tracks: Track[] = [
     id: 'halka-halka',
     title: 'Yeh Jo Halka Halka Suroor Hai',
     artist: 'Nusrat Fateh Ali Khan',
-    youtubeId: 'UIPXHsUXVH0',
+    youtubeId: '8sZqb13NCFg', // OSA Official — 1985 live
   },
 ]

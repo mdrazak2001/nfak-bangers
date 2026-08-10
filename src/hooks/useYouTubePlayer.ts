@@ -48,6 +48,8 @@ export function useYouTubePlayer(trackList: Track[]) {
     if (!t || !playerRef.current) return
     indexRef.current = i
     setIndex(i)
+    setCurrentTime(0)
+    setDuration(0)
     wantPlayRef.current = autoplay
     if (autoplay) {
       playerRef.current.loadVideoById(t.youtubeId)
@@ -58,9 +60,9 @@ export function useYouTubePlayer(trackList: Track[]) {
     }
   }, [])
 
-  const skipFrom = useCallback(
+  /** Move to next/prev playable track. Does NOT mark `from` as permanently skipped. */
+  const advanceFrom = useCallback(
     (from: number, direction: 1 | -1, autoplay: boolean) => {
-      skippedRef.current.add(from)
       const next = nextPlayableIndex(
         from,
         skippedRef.current,
@@ -76,6 +78,15 @@ export function useYouTubePlayer(trackList: Track[]) {
       cueIndex(next, autoplay)
     },
     [cueIndex],
+  )
+
+  /** Mark a track as broken for this session, then advance. */
+  const skipBrokenFrom = useCallback(
+    (from: number, direction: 1 | -1, autoplay: boolean) => {
+      skippedRef.current.add(from)
+      advanceFrom(from, direction, autoplay)
+    },
+    [advanceFrom],
   )
 
   useEffect(() => {
@@ -114,12 +125,13 @@ export function useYouTubePlayer(trackList: Track[]) {
             if (e.data === YTS.PlayerState.PLAYING) setIsPlaying(true)
             if (e.data === YTS.PlayerState.PAUSED) setIsPlaying(false)
             if (e.data === YTS.PlayerState.ENDED) {
-              skipFrom(indexRef.current, 1, true)
+              // Natural end — advance, but keep the finished track playable later
+              advanceFrom(indexRef.current, 1, true)
             }
           },
           onError: (e: { data: number }) => {
             if (YT_ERROR_CODES.has(e.data)) {
-              skipFrom(indexRef.current, 1, wantPlayRef.current)
+              skipBrokenFrom(indexRef.current, 1, wantPlayRef.current)
             }
           },
         },
@@ -147,7 +159,7 @@ export function useYouTubePlayer(trackList: Track[]) {
       }
       playerRef.current = null
     }
-  }, [skipFrom])
+  }, [advanceFrom, skipBrokenFrom])
 
   const playPause = useCallback(() => {
     const p = playerRef.current
@@ -162,12 +174,12 @@ export function useYouTubePlayer(trackList: Track[]) {
   }, [isPlaying])
 
   const next = useCallback(() => {
-    skipFrom(indexRef.current, 1, isPlaying || wantPlayRef.current)
-  }, [isPlaying, skipFrom])
+    advanceFrom(indexRef.current, 1, isPlaying || wantPlayRef.current)
+  }, [advanceFrom, isPlaying])
 
   const prev = useCallback(() => {
-    skipFrom(indexRef.current, -1, isPlaying || wantPlayRef.current)
-  }, [isPlaying, skipFrom])
+    advanceFrom(indexRef.current, -1, isPlaying || wantPlayRef.current)
+  }, [advanceFrom, isPlaying])
 
   const seek = useCallback((seconds: number) => {
     playerRef.current?.seekTo(seconds, true)

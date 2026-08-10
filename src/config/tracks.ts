@@ -14,6 +14,7 @@ const NFAK = 'Nusrat Fateh Ali Khan'
  */
 export const tracks: Track[] = [
   { id: 'tumhe-dillagi', title: 'Tumhe Dillagi Bhul Jani Padegi', artist: NFAK, youtubeId: 'AA-pXqosFf4' },
+  { id: 'longing', title: 'Longing', artist: `${NFAK} & Michael Brook`, youtubeId: 'qSKb5kD3awM' },
   { id: 'mustt-mustt-live', title: 'Mustt Mustt (Live WOMAD Yokohama 1992)', artist: NFAK, youtubeId: 'SDfELfpumEE' },
   { id: 'sanu-ek-pal', title: 'Sanu Ek Pal Chain', artist: NFAK, youtubeId: '5-vbDkmwymY' },
   { id: 'halka-halka', title: 'Yeh Jo Halka Saroor Hae', artist: NFAK, youtubeId: 'xnuBc2Z7D5M' },
@@ -33,7 +34,6 @@ export const tracks: Track[] = [
   { id: 'my-heart-my-life', title: 'My Heart, My Life', artist: `${NFAK} & Michael Brook`, youtubeId: 'ou_KeozfhgQ' },
   { id: 'my-heart-talvin', title: 'My Heart, My Life (Talvin Singh Remix)', artist: `${NFAK} & Michael Brook`, youtubeId: '77ulwIxS83E' },
   { id: 'nothing-without-you', title: 'Nothing Without You', artist: NFAK, youtubeId: 'TaPGOuAmuQk' },
-  { id: 'longing', title: 'Longing', artist: `${NFAK} & Michael Brook`, youtubeId: 'qSKb5kD3awM' },
   { id: 'womad-1985', title: 'Live at WOMAD 1985', artist: NFAK, youtubeId: 'AS0uAi2RF6I' },
   { id: 'the-game', title: 'The Game', artist: NFAK, youtubeId: 'VUSSAH5JMl8' },
   { id: 'tracery', title: 'Tracery', artist: NFAK, youtubeId: 'rKj8g-YFtvA' },

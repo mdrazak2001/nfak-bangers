@@ -43,6 +43,7 @@ export default function App() {
           isUnavailable={player.isUnavailable}
           currentTime={player.currentTime}
           duration={player.duration}
+          statusNote={player.statusNote}
           onPlayPause={player.playPause}
           onPrev={player.prev}
           onNext={player.next}

@@ -9,6 +9,7 @@ export type GlassPlayerProps = {
   isUnavailable: boolean
   currentTime: number
   duration: number
+  statusNote?: string | null
   onPlayPause: () => void
   onPrev: () => void
   onNext: () => void
@@ -32,6 +33,7 @@ export function GlassPlayer(props: GlassPlayerProps) {
     isUnavailable,
     currentTime,
     duration,
+    statusNote,
     onPlayPause,
     onPrev,
     onNext,
@@ -54,7 +56,11 @@ export function GlassPlayer(props: GlassPlayerProps) {
           {isUnavailable ? 'Track unavailable' : title}
         </div>
         <div className="glass-player__artist">
-          {isUnavailable ? 'Try again later' : artist}
+          {isUnavailable
+            ? 'Try again later'
+            : statusNote
+              ? statusNote
+              : artist}
         </div>
         <div className="glass-player__seek-row">
           <input

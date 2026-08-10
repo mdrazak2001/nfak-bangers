@@ -30,6 +30,9 @@ export function useYouTubePlayer(trackList: Track[]) {
   const skippedRef = useRef<Set<number>>(new Set())
   const indexRef = useRef(0)
   const wantPlayRef = useRef(false)
+  /** True only after PLAYING for the current index — blocks fake ENDED cascades. */
+  const heardPlayingRef = useRef(false)
+  const advanceTimerRef = useRef<number | undefined>(undefined)
   const trackListRef = useRef(trackList)
   trackListRef.current = trackList
 
@@ -39,14 +42,23 @@ export function useYouTubePlayer(trackList: Track[]) {
   const [isUnavailable, setIsUnavailable] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [statusNote, setStatusNote] = useState<string | null>(null)
 
   const track = trackList[index] ?? null
+
+  const clearAdvanceTimer = () => {
+    if (advanceTimerRef.current !== undefined) {
+      window.clearTimeout(advanceTimerRef.current)
+      advanceTimerRef.current = undefined
+    }
+  }
 
   const cueIndex = useCallback((i: number, autoplay: boolean) => {
     const list = trackListRef.current
     const t = list[i]
     if (!t || !playerRef.current) return
     indexRef.current = i
+    heardPlayingRef.current = false
     setIndex(i)
     setCurrentTime(0)
     setDuration(0)
@@ -60,7 +72,6 @@ export function useYouTubePlayer(trackList: Track[]) {
     }
   }, [])
 
-  /** Move to next/prev playable track. Does NOT mark `from` as permanently skipped. */
   const advanceFrom = useCallback(
     (from: number, direction: 1 | -1, autoplay: boolean) => {
       const next = nextPlayableIndex(
@@ -72,6 +83,7 @@ export function useYouTubePlayer(trackList: Track[]) {
       if (next === null) {
         setIsUnavailable(true)
         setIsPlaying(false)
+        setStatusNote('No playable tracks left')
         return
       }
       setIsUnavailable(false)
@@ -80,11 +92,23 @@ export function useYouTubePlayer(trackList: Track[]) {
     [cueIndex],
   )
 
-  /** Mark a track as broken for this session, then advance. */
-  const skipBrokenFrom = useCallback(
-    (from: number, direction: 1 | -1, autoplay: boolean) => {
-      skippedRef.current.add(from)
-      advanceFrom(from, direction, autoplay)
+  /** Queue an advance so rapid YT errors/fake ENDEDs don't stampede the player. */
+  const scheduleAdvance = useCallback(
+    (from: number, direction: 1 | -1, autoplay: boolean, markBroken: boolean) => {
+      clearAdvanceTimer()
+      if (markBroken) {
+        skippedRef.current.add(from)
+        const remaining =
+          trackListRef.current.length - skippedRef.current.size
+        if (remaining > 0) {
+          setStatusNote('Skipping unavailable track…')
+        }
+      }
+      advanceTimerRef.current = window.setTimeout(() => {
+        advanceTimerRef.current = undefined
+        setStatusNote(null)
+        advanceFrom(from, direction, autoplay)
+      }, 350)
     },
     [advanceFrom],
   )
@@ -115,6 +139,7 @@ export function useYouTubePlayer(trackList: Track[]) {
           playsinline: 1,
           rel: 0,
           enablejsapi: 1,
+          origin: window.location.origin,
         },
         events: {
           onReady: () => {
@@ -122,16 +147,27 @@ export function useYouTubePlayer(trackList: Track[]) {
           },
           onStateChange: (e: { data: number }) => {
             const YTS = window.YT!
-            if (e.data === YTS.PlayerState.PLAYING) setIsPlaying(true)
+            if (e.data === YTS.PlayerState.PLAYING) {
+              heardPlayingRef.current = true
+              setIsPlaying(true)
+              setStatusNote(null)
+            }
             if (e.data === YTS.PlayerState.PAUSED) setIsPlaying(false)
             if (e.data === YTS.PlayerState.ENDED) {
-              // Natural end — advance, but keep the finished track playable later
-              advanceFrom(indexRef.current, 1, true)
+              // Fake ENDED right after a failed/blocked load used to cascade
+              // through the whole playlist. Only treat as a real end if we
+              // actually heard PLAYING for this index.
+              if (!heardPlayingRef.current) {
+                scheduleAdvance(indexRef.current, 1, wantPlayRef.current, true)
+                return
+              }
+              heardPlayingRef.current = false
+              scheduleAdvance(indexRef.current, 1, true, false)
             }
           },
           onError: (e: { data: number }) => {
             if (YT_ERROR_CODES.has(e.data)) {
-              skipBrokenFrom(indexRef.current, 1, wantPlayRef.current)
+              scheduleAdvance(indexRef.current, 1, wantPlayRef.current, true)
             }
           },
         },
@@ -151,6 +187,7 @@ export function useYouTubePlayer(trackList: Track[]) {
 
     return () => {
       cancelled = true
+      clearAdvanceTimer()
       if (poll) window.clearInterval(poll)
       try {
         playerRef.current?.destroy()
@@ -159,7 +196,7 @@ export function useYouTubePlayer(trackList: Track[]) {
       }
       playerRef.current = null
     }
-  }, [advanceFrom, skipBrokenFrom])
+  }, [scheduleAdvance])
 
   const playPause = useCallback(() => {
     const p = playerRef.current
@@ -174,10 +211,15 @@ export function useYouTubePlayer(trackList: Track[]) {
   }, [isPlaying])
 
   const next = useCallback(() => {
+    clearAdvanceTimer()
+    setStatusNote(null)
+    // Manual next: do not permanently skip the current track
     advanceFrom(indexRef.current, 1, isPlaying || wantPlayRef.current)
   }, [advanceFrom, isPlaying])
 
   const prev = useCallback(() => {
+    clearAdvanceTimer()
+    setStatusNote(null)
     advanceFrom(indexRef.current, -1, isPlaying || wantPlayRef.current)
   }, [advanceFrom, isPlaying])
 
@@ -195,6 +237,7 @@ export function useYouTubePlayer(trackList: Track[]) {
     isUnavailable,
     currentTime,
     duration,
+    statusNote,
     playPause,
     next,
     prev,

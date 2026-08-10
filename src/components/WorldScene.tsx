@@ -60,7 +60,9 @@ export function WorldScene({ world, reducedMotion }: Props) {
         ].join(' ')}
         style={{ backgroundImage: `url(${current.image})` }}
       />
-      <h1 className="world-scene__brand">{current.brandLine ?? 'NFAK Bangers'}</h1>
+      <h1 className={`world-scene__brand world-scene__brand--${current.id}`}>
+        {current.brandLine ?? 'NFAK Bangers'}
+      </h1>
     </div>
   )
 }

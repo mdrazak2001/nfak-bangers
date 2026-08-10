@@ -34,29 +34,88 @@
 
 .world-scene__brand {
   position: absolute;
-  left: 50%;
-  top: 28%;
-  transform: translateX(-50%);
   z-index: 2;
   margin: 0;
-  padding: 0 var(--space-4);
-  max-width: min(90vw, 16ch);
-  text-align: center;
+  padding: 0;
+  max-width: min(42vw, 11ch);
   font-family: var(--font-brand);
-  font-weight: 700;
-  font-size: clamp(2.25rem, 8vw, 4.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  font-size: clamp(1.65rem, 4.8vw, 2.85rem);
+  line-height: 0.96;
+  letter-spacing: -0.018em;
   color: var(--ink);
   text-wrap: balance;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35),
+    0 8px 28px rgba(0, 0, 0, 0.28);
   pointer-events: none;
+}
+
+/* Arch-apex plaque — above the face, inside the niche */
+.world-scene__brand--portrait-shrine {
+  left: 50%;
+  top: 10.5%;
+  transform: translateX(-50%);
+  text-align: center;
+  max-width: min(48vw, 12ch);
+  font-size: clamp(1.45rem, 4.2vw, 2.45rem);
+  font-weight: 600;
+  color: rgba(255, 248, 235, 0.92);
+  text-shadow:
+    0 1px 1px rgba(40, 18, 8, 0.55),
+    0 6px 22px rgba(20, 8, 0, 0.4);
+}
+
+/* Sky / upper courtyard, clear of the seated mehfil */
+.world-scene__brand--mehfil {
+  left: max(1.25rem, 5vw);
+  top: 16%;
+  text-align: left;
+  max-width: min(38vw, 10ch);
+  color: rgba(255, 252, 245, 0.94);
+}
+
+/* Night sky by the moon — left of truck + stall */
+.world-scene__brand--truck-chai {
+  left: max(1.25rem, 4.5vw);
+  top: 12%;
+  text-align: left;
+  max-width: min(40vw, 10ch);
+  color: rgba(245, 248, 255, 0.93);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* Warm dusk sky left of the shrine massing */
+.world-scene__brand--dargah-dusk {
+  left: max(1.25rem, 5vw);
+  top: 20%;
+  text-align: left;
+  max-width: min(36vw, 10ch);
+  color: rgba(255, 246, 230, 0.94);
 }
 
 @media (max-width: 430px) {
   .world-scene__brand {
-    top: 22%;
-    font-size: clamp(2rem, 11vw, 2.75rem);
-    padding-bottom: 120px;
+    font-size: clamp(1.4rem, 7.5vw, 2rem);
+    max-width: min(70vw, 11ch);
+  }
+
+  .world-scene__brand--portrait-shrine {
+    top: 9%;
+    font-size: clamp(1.3rem, 7vw, 1.85rem);
+  }
+
+  .world-scene__brand--mehfil {
+    top: 14%;
+  }
+
+  .world-scene__brand--truck-chai {
+    top: 11%;
+  }
+
+  .world-scene__brand--dargah-dusk {
+    top: 17%;
   }
 }

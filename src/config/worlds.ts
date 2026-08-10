@@ -5,7 +5,7 @@ export type World = {
   brandLine?: string
 }
 
-export const defaultWorldId = 'dargah-dusk' as const
+export const defaultWorldId = 'portrait-shrine' as const
 
 export const worlds: World[] = [
   {

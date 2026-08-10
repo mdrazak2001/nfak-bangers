@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { defaultWorldId, getWorld, worlds } from '../config/worlds'
 
 describe('worlds config', () => {
-  it('defaults to dargah-dusk', () => {
-    expect(defaultWorldId).toBe('dargah-dusk')
+  it('defaults to portrait-shrine', () => {
+    expect(defaultWorldId).toBe('portrait-shrine')
   })
 
   it('includes all four worlds', () => {
